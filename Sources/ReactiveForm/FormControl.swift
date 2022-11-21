@@ -22,6 +22,8 @@ public class FormControl<Value: Equatable>: AbstractControl {
     case manually
   }
 
+  private(set) var isRegistered = false
+
   private var validateType = ValidateType.automatic
   
   /// Validations applied to the control.
@@ -93,5 +95,9 @@ public class FormControl<Value: Equatable>: AbstractControl {
   /// and also recalculates pristine state of its parent.
   public func markAsDirty() {
     isPristine = false
+  }
+
+  func markAsRegister() {
+    isRegistered = true
   }
 }

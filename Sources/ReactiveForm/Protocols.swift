@@ -1,5 +1,9 @@
 import Combine
 
+protocol ValidateControlRegistry {
+    func register(_ control: ValidatableControl)
+}
+
 protocol Validatable {
   var isValid: Bool { get }
   var isInvalid: Bool { get }

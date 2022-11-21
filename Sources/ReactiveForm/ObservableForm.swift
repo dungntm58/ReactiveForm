@@ -9,7 +9,7 @@ import Combine
 ///       var name = FormControl("", validators: [.required])
 ///       var email = FormControl("", validators: [.email])
 ///     }
-open class ObservableForm: AbstractForm {
+open class ObservableForm: AbstractForm, ValidateControlRegistry {
   /// Stores subscribers of `objectWillChange` from controls.
   private var cancellables: Set<AnyCancellable> = []
   private var controls: [ValidatableControl] = []
@@ -43,10 +43,7 @@ open class ObservableForm: AbstractForm {
   }
 
   /// Creates a observable form and sets to initial state.
-  public init() {
-    collectControls(self)
-    forwardObjectWillChangeFromControls()
-  }
+  public init() {}
 
   /// Updates the validity of all controls in the form
   /// and also updates the validity of the form.
@@ -55,29 +52,14 @@ open class ObservableForm: AbstractForm {
       $0.validate()
     }
   }
+
+  func register(_ control: ValidatableControl) {
+    controls.append(control)
+    forward(from: control)
+  }
 }
 
 private extension ObservableForm {
-  func collectControls(_ object: Any) {
-    Mirror(reflecting: object)
-      .children
-      .forEach(collectControlIfPossible)
-  }
-
-  func collectControlIfPossible(child: Mirror.Child) {
-    guard let control = child.value as? ValidatableControl else {
-      // Properties annotated by `FormField`
-      collectControls(child.value)
-      return
-    }
-
-    controls.append(control)
-  }
-
-  func forwardObjectWillChangeFromControls() {
-    controls.forEach(forward(from:))
-  }
-
   /// Forwards `objectWillChange` of FormControl
   /// due to the nested `ObservableObject`.
   func forward(from control: ValidatableControl) {
